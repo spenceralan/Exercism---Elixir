@@ -25,27 +25,29 @@ defmodule ProteinTranslation do
 
   @spec of_rna(String.t()) :: { atom,  list(String.t()) }
   def of_rna(rna) do
-
     rna_chunks = rna_chunks(rna)
-
     if is_rna?(rna_chunks) do
-      list = rna_chunks
-      |> Enum.map( fn(x) ->
-        {:ok, codon} = of_codon(x)
-        codon
-      end )
-      |> Enum.reduce_while([], fn(x, acc) ->
-        if x != "STOP" do
-          {:cont, [x | acc]}
-        else
-          {:halt, acc}
-        end
-      end )
-      |> Enum.reverse()
-      {:ok, list}
+      protein_list(rna_chunks)
     else
       {:error, "invalid RNA"}
     end
+  end
+
+  def protein_list(rna_chunks) do
+    list = rna_chunks
+    |> Enum.map( fn(x) ->
+      {:ok, codon} = of_codon(x)
+      codon
+    end )
+    |> Enum.reduce_while([], fn(x, acc) ->
+      if x == "STOP" do
+        {:halt, acc}
+      else
+        {:cont, [x | acc]}
+      end
+    end )
+    |> Enum.reverse()
+    {:ok, list}
   end
 
   def is_rna?(rna_chunks) do
