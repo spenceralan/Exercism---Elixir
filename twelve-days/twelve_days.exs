@@ -35,17 +35,25 @@ defmodule TwelveDays do
     "On the #{numbered} day of Christmas my true love gave to me"
   end
 
+  def gifts_excuding_first(number) do
+    Enum.take(@gifts, number)
+    |> List.delete_at(0)
+    |> Enum.reverse
+  end
+
+  def first_gift do
+    Enum.at(@gifts, 0)
+  end
+
   @doc """
   Given a `number`, return the song's verse for that specific day, including
   all gifts for previous days in the same line.
   """
   @spec verse(number :: integer) :: String.t()
   def verse(number) do
-    gifts = Enum.take(@gifts, number)
-    |> List.delete_at(0)
-    |> Enum.reverse
-    opening = [ opening(number) | gifts ]
-    verse = [ Enum.join(opening, ", ") | [Enum.at(@gifts, 0)] ]
+    opening = [ opening(number) | gifts_excuding_first(number) ]
+    closing = [ first_gift ]
+    verse = [ Enum.join(opening, ", ") | closing ]
     if number > 1 do
       Enum.join(verse, ", and ")
     else
